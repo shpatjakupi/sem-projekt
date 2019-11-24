@@ -1,15 +1,15 @@
 package facades;
-
-
-import DTO.travelsDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,83 +18,68 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import javafx.util.Pair;
+import org.glassfish.jersey.internal.guava.ExecutionError;
 
 public class travelsFacade {
-    
-    private static ExecutorService executor = Executors.newFixedThreadPool(14);
-    Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    private static ExecutorService executor = Executors.newCachedThreadPool();
+    //Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static travelsFacade instance;
+    private String url = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/";
+    private String[] PLACES = {"?query=Copenhagen", "?query=London", "?query=Rome", "?query=Milano", "?query=Berlin"};
 
-    private travelsFacade() {
-    }
+    public Map<String, String> apiDataAll() throws InterruptedException, ExecutionError, TimeoutException, ExecutionException {
+        Map<String, String> result = new HashMap();
+        Queue<Future<Pair<String, String>>> queue = new ArrayBlockingQueue(PLACES.length);
 
-    public static travelsFacade getTravelFacade() {
-        if (instance == null) {
-
-            instance = new travelsFacade();
-        }
-        return instance;
-    }
-    
-    
-    public String getTravelData() throws MalformedURLException, IOException{
-        URL url = new URL("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/DK/KR/en-GB/?query=Copenhagen" );
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Accept", "application/json;charset=UTF-8");
-        con.setRequestProperty("x-rapidapi-host","skyscanner-skyscanner-flight-search-v1.p.rapidapi.com");
-        con.setRequestProperty("x-rapidapi-key","\"04df80bf11msh07708f02a1040d1p1d7092jsn6ec6decfc602");
-        //con.setRequestProperty("User-Agent", "server"); //remember if you are using SWAPI
-        Scanner scan = new Scanner(con.getInputStream());
-        String jsonStr = null;
-        if (scan.hasNext()) {
-          jsonStr = scan.nextLine();
-        }
-        scan.close();
-        return jsonStr;
-      }
-
-    public List<travelsDTO> getAll() throws InterruptedException, ExecutionException{
-        List<travelsDTO> travels = new ArrayList<>();
-        
-        Queue<Future<travelsDTO>> queue = new ArrayBlockingQueue(14);
-       
-       // List<Future<String>> futures = new ArrayList();
-        
-        for (int i = 1; i <= 14; i++) {
-            //final int count = i;
-            Future<travelsDTO> future = executor.submit(() -> {
-                
-                travelsDTO travel = GSON.fromJson(getTravelData(), travelsDTO.class);
-                return travel;
+        for (final String place : PLACES) {
+            Future<Pair<String, String>> future = executor.submit(new Callable<Pair<String, String>>() {
+                @Override
+                public Pair<String, String> call() throws Exception {
+                    return new Pair(place.substring(0, place.length() - 1), getTravelData(url + place));
+                }
             });
-
             queue.add(future);
         }
-            
-        
+
         while (!queue.isEmpty()) {
-            Future<travelsDTO> travel = queue.poll();
-            if (travel.isDone()) {
-                travels.add(travel.get());
+            Future<Pair<String, String>> epPair = queue.poll();
+            if (epPair.isDone()) {
+                result.put(epPair.get().getKey(), epPair.get().getValue());
             } else {
-                queue.add(travel);
+                queue.add(epPair);
             }
         }
-
-        return travels;
+        executor.shutdown();
+        return result;
     
 }
-   public static void main(String[] args) throws InterruptedException, ExecutionException {
-        
-        travelsFacade sf = travelsFacade.getTravelFacade();
-        
-        List<travelsDTO> travels = sf.getAll();
-        
-        for (travelsDTO travel : travels) {
-            System.out.println(travel);
+    
+    public String getTravelData(String url) throws MalformedURLException, IOException {
+        String result = "";
+        try {
+            URL travelURL = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) travelURL.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Accept", "application/json;charset=UTF-8");
+            con.setRequestProperty("x-rapidapi-host","skyscanner-skyscanner-flight-search-v1.p.rapidapi.com");
+            con.setRequestProperty("x-rapidapi-key","04df80bf11msh07708f02a1040d1p1d7092jsn6ec6decfc602");
+            //connection.setRequestProperty("user-agent", "Application");
+            try (Scanner scan = new Scanner(con.getInputStream())) {
+                String response = "";
+                while (scan.hasNext()) {
+                    response += scan.nextLine();
+                }
+                Gson gson = new Gson();
+                result = gson.fromJson(response, JsonObject.class).toString();
+            }
+        } catch (Exception e) {
+            result = "";
         }
-        
+        return result;
     }
- 
+
+    
 }

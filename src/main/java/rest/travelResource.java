@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import errorhandling.NotFoundException;
 import facades.travelsFacade;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.Context;
@@ -22,24 +23,16 @@ import utils.EMF_Creator;
  */
 @Path("travels")
 public class travelResource {
-    
-    private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
-    private static final travelsFacade SF = travelsFacade.getTravelFacade();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+   private travelsFacade facade = new travelsFacade();
+   private static EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
     
     @Context
     private UriInfo context;
     
     @Path ("all")
-    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getPersons() throws NotFoundException {
-        try {
-            List<travelsDTO> persons = SF.getAll();
-            return GSON.toJson(persons);
-        } catch (InterruptedException | ExecutionException ex) {
-
-            throw new NotFoundException(ex.getMessage());
-        }
+    @GET
+    public Map getPersons() throws Exception {
+        return facade.apiDataAll();
     }
 }
