@@ -1,10 +1,10 @@
 package rest;
 
-import DTO.travelsDTO;
+import DTO.PlacesDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import errorhandling.NotFoundException;
-import facades.travelsFacade;
+import facades.SkyscannerFacade;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -22,8 +22,9 @@ import utils.EMF_Creator;
  *
  */
 @Path("travels")
-public class travelResource {
-   private travelsFacade facade = new travelsFacade();
+public class TravelResource{
+    
+   private SkyscannerFacade facade = new SkyscannerFacade();
    private static EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
     
     @Context
@@ -32,7 +33,7 @@ public class travelResource {
     @Path ("all")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public Map getPersons() throws Exception {
-        return facade.apiDataAll();
+    public Map getPlaces() throws Exception {
+        return facade.getAllPlaces();
     }
 }
