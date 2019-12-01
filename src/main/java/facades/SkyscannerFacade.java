@@ -1,4 +1,8 @@
 package facades;
+import DTO.CarriersDTO;
+import DTO.FlightInfoDTO;
+import DTO.ItinerariesDTO;
+import DTO.PlacesDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -25,6 +29,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import javafx.util.Pair;
 import org.glassfish.jersey.internal.guava.ExecutionError;
+import org.json.JSONArray;
 
 public class SkyscannerFacade {
 
@@ -33,7 +38,8 @@ public class SkyscannerFacade {
     private static SkyscannerFacade instance;
     private String key = "04df80bf11msh07708f02a1040d1p1d7092jsn6ec6decfc602";
     private String host ="skyscanner-skyscanner-flight-search-v1.p.rapidapi.com";
-    private String[] PLACES = {"?query=Copenhagen", "?query=London", "?query=Rome", "?query=Milano", "?query=Berlin"};
+    
+    /* private String[] PLACES = {"?query=Copenhagen", "?query=London", "?query=Rome", "?query=Milano", "?query=Berlin"};
 
     public Map<String, String> getAllPlaces() throws InterruptedException, ExecutionError, TimeoutException, ExecutionException {
         Map<String, String> result = new HashMap();
@@ -61,18 +67,18 @@ public class SkyscannerFacade {
         return result;
     
 }
-    
-    public String getPlaces(String place) throws MalformedURLException, IOException {
+*/    
+    public String fetchPlaces(String query) throws MalformedURLException, IOException {
         String result ="";
-        String defaultUrl = "\"https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/\"";
-        String fullUrl = defaultUrl + place;
+        String defaultUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=";
+        String fullUrl = defaultUrl + query;
             URL url = new URL(fullUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Accept", "application/json;charset=UTF-8");
             con.setRequestProperty("x-rapidapi-key",key);
             con.setRequestProperty("x-rapidapi-host",host);
-            //connection.setRequestProperty("user-agent", "Application");
+           
             try (Scanner scan = new Scanner(con.getInputStream())) {
                 String response = "";
                 while (scan.hasNext()) {
@@ -86,9 +92,7 @@ public class SkyscannerFacade {
             return result;
     }
     
-    
-    
-    public String createSession(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{
+    public String createSession(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{ // for a live flight search
         HttpResponse<JsonNode> response = Unirest.post("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0")
                 .header("X-RapidAPI-Host", host)
                 .header("X-RapidAPI-Key", key)
@@ -126,6 +130,58 @@ public class SkyscannerFacade {
         return sessionKey;
      
 }
+    
+    private List <FlightInfoDTO> getFlightSearch(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{
+         String sessionKey = createSession(inboundDate, cabinClass, originPlace, destinationPlace, outboundDate, adults);
+         HttpResponse<JsonNode> response = Unirest.get(
+                "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/"
+                + sessionKey + "?pageIndex=0&pageSize=10")
+                .header("X-RapidAPI-Host", host)
+                .header("X-RapidAPI-Key", key)
+                .asJson();
+         
+         
+         JSONArray itineraries = response.getBody().getObject().getJSONArray("Itineraries");
+         JSONArray segments = response.getBody().getObject().getJSONArray("Segments");
+         JSONArray pricingOptions;
+         JSONArray carriers;
+         String inboundLegId;
+         String outboundLegId;
+         double price;
+         String deeplinkUrl;
+         int agents;
+         List<ItinerariesDTO> itinerariesList = new ArrayList();
+         
+         String id;
+         String departure;
+         String arrival;
+         int duration;
+         List<FlightInfoDTO> flightInfoList = new ArrayList();
+         
+         List <CarriersDTO> carriersList = new ArrayList();
+         carriers = response.getBody().getObject().getJSONArray("Carriers");
+         int carriersId;
+         String code;
+         String name;
+         String imageUrl;
+         
+         for(int i = 0; i < itineraries.length(); i++){
+             pricingOptions = (JSONArray) itineraries.getJSONObject(i).get("PricingOptions");
+             outboundLegId = itineraries.getJSONObject(i).get("OutboundLegId").toString();
+             inboundLegId = itineraries.getJSONObject(i).get("InboundLegId").toString();
+             
+             for(int j = 0; j < pricingOptions.length(); j++){
+                price = (double) pricingOptions.getJSONObject(j).get("Price");
+                deeplinkUrl = pricingOptions.getJSONObject(j).get("DeeplinkUrl").toString();
+                
+                ItinerariesDTO itinerariesDTO = new ItinerariesDTO(outboundLegId, inboundLegId, price, deeplinkUrl);
+                itinerariesList.add(itinerariesDTO);
+             }
+             
+         }
+         
+    }
+    
     
         
     
