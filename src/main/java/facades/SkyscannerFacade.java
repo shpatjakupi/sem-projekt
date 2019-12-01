@@ -162,7 +162,7 @@ public class SkyscannerFacade {
          carriers = response.getBody().getObject().getJSONArray("Carriers");
          int carriersId;
          String code;
-         String name;
+         String carrierName;
          String imageUrl;
          
          for(int i = 0; i < itineraries.length(); i++){
@@ -178,6 +178,15 @@ public class SkyscannerFacade {
                 itinerariesList.add(itinerariesDTO);
              }
              
+         }
+         
+         for(int i = 0; i < carriers.length(); i++){
+             carriersId = (int) carriers.getJSONObject(i).get("Id");
+             code = carriers.getJSONObject(i).get("Code").toString();
+             carrierName = carriers.getJSONObject(i).get("Name").toString();
+             imageUrl = carriers.getJSONObject(i).get("ImageUrl").toString();
+             CarriersDTO carriersDTO = new CarriersDTO(carriersId, code, carrierName, imageUrl);
+             carriersList.add(carriersDTO);
          }
          
     }
