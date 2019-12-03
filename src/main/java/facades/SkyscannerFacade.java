@@ -132,7 +132,7 @@ public class SkyscannerFacade {
      
 }
     
-    private List <FlightInfoDTO> getFlightSearch(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{
+    public List <FlightInfoDTO> getFlightSearch(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{
          String sessionKey = createSession(inboundDate, cabinClass, originPlace, destinationPlace, outboundDate, adults);
          HttpResponse<JsonNode> response = Unirest.get(
                 "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/"
@@ -227,10 +227,19 @@ public class SkyscannerFacade {
              FlightInfoDTO flightInfo = new FlightInfoDTO(id, originPlace, destinationPlace, departure, arrival, duration,
                      itinerariesList.get(j).getPrice(), itinerariesList.get(j).getDeeplinkUrl(), carriersList.get(j).getName(), agentsList.get(j).getImageUrlAgents());
                      
-                for(int k = 0; k < carriersList.size(); k++){
-                    if(carriersList.get(k).getId() == carrier){
-                        
+                for(int k = 0; k < agentsList.size(); k++){
+                    if(agentsList.get(k).getId() == itinerariesList.get(j).getAgents()){
+                    flightInfo.setAgentsName(agentsList.get(k).getName());
+                    flightInfo.setImageUrl(agentsList.get(k).getImageUrlAgents());
                     }
+                    
+                for(int l = 0; l < carriersList.size(); l++){
+                    if(carriersList.get(l).getId() == carrier){
+                        flightInfo.setCarrierName(carriersList.get(l).getName());
+                    }
+                }
+                    flightInfoList.add(flightInfo);
+                    System.out.println(flightInfo);
                 
                 }
              
@@ -240,13 +249,18 @@ public class SkyscannerFacade {
              
          }
          
+         return flightInfoList;
+         
     }
     
-    
+        public static void main(String[] args) throws InterruptedException, ExecutionException, UnirestException {
+        SkyscannerFacade skyFacade = new SkyscannerFacade();
+        System.out.println(skyFacade.getFlightSearch("2019-12-20", "business", "SFO-sky", "LHR-sky", "2019-12-03", 3));
         
     
     
 }
-    
 
+    
+}
 
