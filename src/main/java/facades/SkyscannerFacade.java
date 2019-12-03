@@ -1,4 +1,5 @@
 package facades;
+import DTO.AgentsDTO;
 import DTO.CarriersDTO;
 import DTO.FlightInfoDTO;
 import DTO.ItinerariesDTO;
@@ -145,25 +146,41 @@ public class SkyscannerFacade {
          JSONArray segments = response.getBody().getObject().getJSONArray("Segments");
          JSONArray pricingOptions;
          JSONArray carriers;
+         
+         
+         // Itineraries
          String inboundLegId;
          String outboundLegId;
          double price;
+         int agents;
          String deeplinkUrl;
          List<ItinerariesDTO> itinerariesList = new ArrayList();
          
+         // FlightInfo
          String id = null;
          String departure;
          String arrival;
-         int carrier;
          int duration;
+         int carrier;
          List<FlightInfoDTO> flightInfoList = new ArrayList();
          
+         // Carriers
          List <CarriersDTO> carriersList = new ArrayList();
          carriers = response.getBody().getObject().getJSONArray("Carriers");
          int carriersId;
          String code;
          String carrierName;
-         String imageUrl;
+         String imageUrlCarriers;
+         
+         // Agents
+         List<AgentsDTO> agentsList = new ArrayList();
+         JSONArray agentsIdList = response.getBody().getObject().getJSONArray("Agents");
+         int agentsId;
+         String agentsName;
+         String imageUrlAgents;
+        
+         
+         
          
          for(int i = 0; i < itineraries.length(); i++){
              pricingOptions = (JSONArray) itineraries.getJSONObject(i).get("PricingOptions");
@@ -173,19 +190,29 @@ public class SkyscannerFacade {
              for(int j = 0; j < pricingOptions.length(); j++){
                 price = (double) pricingOptions.getJSONObject(j).get("Price");
                 deeplinkUrl = pricingOptions.getJSONObject(j).get("DeeplinkUrl").toString();
+                agentsIdList = (JSONArray) pricingOptions.getJSONObject(j).get("Agents");
+                agents = (int) agentsIdList.getInt(0);
                 
-                ItinerariesDTO itinerariesDTO = new ItinerariesDTO(outboundLegId, inboundLegId, price, deeplinkUrl);
+                ItinerariesDTO itinerariesDTO = new ItinerariesDTO(outboundLegId, inboundLegId, price, agents, deeplinkUrl);
                 itinerariesList.add(itinerariesDTO);
              }
              
+         }
+         
+         for(int i = 0; i < agentsIdList.length(); i++){
+             agentsId = (int) agentsIdList.getJSONObject(i).get("Id");
+             agentsName = agentsIdList.getJSONObject(i).get("Name").toString();
+             imageUrlAgents = agentsIdList.getJSONObject(i).get("ImageUrl").toString();
+             AgentsDTO agentsDTO = new AgentsDTO(agentsId, agentsName, imageUrlAgents);
+             agentsList.add(agentsDTO);
          }
          
          for(int i = 0; i < carriers.length(); i++){
              carriersId = (int) carriers.getJSONObject(i).get("Id");
              code = carriers.getJSONObject(i).get("Code").toString();
              carrierName = carriers.getJSONObject(i).get("Name").toString();
-             imageUrl = carriers.getJSONObject(i).get("ImageUrl").toString();
-             CarriersDTO carriersDTO = new CarriersDTO(carriersId, code, carrierName, imageUrl);
+             imageUrlCarriers = carriers.getJSONObject(i).get("ImageUrl").toString();
+             CarriersDTO carriersDTO = new CarriersDTO(carriersId, code, carrierName, imageUrlCarriers);
              carriersList.add(carriersDTO);
          }
          
@@ -197,10 +224,12 @@ public class SkyscannerFacade {
              
          for(int j = 0; j < itinerariesList.size(); j++){
              if(itinerariesList.get(j).getOutboundLegId().equals(id)){
-             FlightInfoDTO flightInfo = new FlightInfoDTO(id, originPlace, destinationPlace, departure, arrival, carrier, duration, itinerariesList.get(j).getPrice(), itinerariesList.get(j).getDeeplinkUrl());
+             FlightInfoDTO flightInfo = new FlightInfoDTO(id, originPlace, destinationPlace, departure, arrival, duration,
+                     itinerariesList.get(j).getPrice(), itinerariesList.get(j).getDeeplinkUrl(), carriersList.get(j).getName(), agentsList.get(j).getImageUrlAgents());
+                     
                 for(int k = 0; k < carriersList.size(); k++){
                     if(carriersList.get(k).getId() == carrier){
-                        flightInfo.s
+                        
                     }
                 
                 }

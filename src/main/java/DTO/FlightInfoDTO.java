@@ -15,22 +15,26 @@ public class FlightInfoDTO {
     private String destination;
     private String departure;
     private String arrival;
-    private String carrierName;
     private int flightDuration;
     private double price;
     private String deepLinkUrl;
+    private String agentsName;
+    private String carrierName;
     private String imageUrl;
+    
+    //private String carrierName; 
 
-    public FlightInfoDTO(String id, String origin, String destination, String departure, String arrival, String carrierName, int flightDuration, double price, String deepLinkUrl, String imageUrl) {
+    public FlightInfoDTO(String id, String origin, String destination, String departure, String arrival, int flightDuration, double price, String deepLinkUrl, String agentsName, String imageUrl) {
         this.id = id;
         this.origin = origin;
         this.destination = destination;
         this.departure = departure;
         this.arrival = arrival;
-        this.carrierName = carrierName;
         this.flightDuration = flightDuration;
         this.price = price;
         this.deepLinkUrl = deepLinkUrl;
+        this.agentsName = agentsName;
+        this.carrierName = carrierName;
         this.imageUrl = imageUrl;
     }
 
@@ -98,6 +102,23 @@ public class FlightInfoDTO {
         this.deepLinkUrl = deepLinkUrl;
     }
 
+    public String getAgentsName() {
+        return agentsName;
+    }
+
+    public void setAgentsName(String agentsName) {
+        this.agentsName = agentsName;
+    }
+
+    public String getCarrierName() {
+        return carrierName;
+    }
+
+    public void setCarrierName(String carrierName) {
+        this.carrierName = carrierName;
+    }
+    
+    
     public String getImageUrl() {
         return imageUrl;
     }
@@ -107,21 +128,8 @@ public class FlightInfoDTO {
     }
     
     
+    
+    
+    
 
-    public String getCarrierName() {
-        return carrierName;
-    }
-
-    public void setCarrierName(String carrierName) {
-        this.carrierName = carrierName;
-    }
-     
-    
-    
-    
-    
-    
-    
-    
-    
 }

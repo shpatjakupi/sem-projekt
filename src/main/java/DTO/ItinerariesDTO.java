@@ -14,12 +14,14 @@ public class ItinerariesDTO {
     private String outboundLegId;
     private String inboundLegId;
     private double price;
+    private int agents;
     private String deeplinkUrl;
 
-    public ItinerariesDTO(String outboundLegId, String inboundLegId, double price, String deeplinkUrl) {
+    public ItinerariesDTO(String outboundLegId, String inboundLegId, double price, int agents, String deeplinkUrl) {
         this.outboundLegId = outboundLegId;
         this.inboundLegId = inboundLegId;
         this.price = price;
+        this.agents = agents;
         this.deeplinkUrl = deeplinkUrl;
     }
 
@@ -46,6 +48,16 @@ public class ItinerariesDTO {
     public void setPrice(double price) {
         this.price = price;
     }
+
+    public int getAgents() {
+        return agents;
+    }
+
+    public void setAgents(int agents) {
+        this.agents = agents;
+    }
+    
+    
 
     public String getDeeplinkUrl() {
         return deeplinkUrl;

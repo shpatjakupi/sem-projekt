@@ -9,17 +9,16 @@ package DTO;
  *
  * @author Younes
  */
-public class CarriersDTO {
+public class AgentsDTO {
+    
     private int id;
-    private String code;
     private String name;
-    private String imageUrlCarriers;
+    private String imageUrlAgents;
 
-    public CarriersDTO(int id, String code, String name, String imageUrlCarriers) {
+    public AgentsDTO(int id, String name, String imageUrlAgents) {
         this.id = id;
-        this.code = code;
         this.name = name;
-        this.imageUrlCarriers = imageUrlCarriers;
+        this.imageUrlAgents = imageUrlAgents;
     }
 
     public int getId() {
@@ -30,14 +29,6 @@ public class CarriersDTO {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getName() {
         return name;
     }
@@ -46,14 +37,13 @@ public class CarriersDTO {
         this.name = name;
     }
 
-    public String getImageUrlCarrier() {
-        return imageUrlCarriers;
+    public String getImageUrlAgents() {
+        return imageUrlAgents;
     }
 
-    public void setImageUrl(String imageUrlCarriers) {
-        this.imageUrlCarriers = imageUrlCarriers;
+    public void setImageUrl(String imageUrlAgents) {
+        this.imageUrlAgents = imageUrlAgents;
     }
-    
     
     
     
