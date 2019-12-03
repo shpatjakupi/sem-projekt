@@ -149,12 +149,12 @@ public class SkyscannerFacade {
          String outboundLegId;
          double price;
          String deeplinkUrl;
-         int agents;
          List<ItinerariesDTO> itinerariesList = new ArrayList();
          
-         String id;
+         String id = null;
          String departure;
          String arrival;
+         int carrier;
          int duration;
          List<FlightInfoDTO> flightInfoList = new ArrayList();
          
@@ -187,6 +187,28 @@ public class SkyscannerFacade {
              imageUrl = carriers.getJSONObject(i).get("ImageUrl").toString();
              CarriersDTO carriersDTO = new CarriersDTO(carriersId, code, carrierName, imageUrl);
              carriersList.add(carriersDTO);
+         }
+         
+         for(int i = 0; i < segments.length(); i++){
+             departure = segments.getJSONObject(i).get("DepartureDateTime").toString();
+             arrival = segments.getJSONObject(i).get("ArrivalDateTime").toString();
+             duration = (int) segments.getJSONObject(i).get("Duration");
+             carrier = (int) segments.getJSONObject(i).get("Carrier");
+             
+         for(int j = 0; j < itinerariesList.size(); j++){
+             if(itinerariesList.get(j).getOutboundLegId().equals(id)){
+             FlightInfoDTO flightInfo = new FlightInfoDTO(id, originPlace, destinationPlace, departure, arrival, carrier, duration, itinerariesList.get(j).getPrice(), itinerariesList.get(j).getDeeplinkUrl());
+                for(int k = 0; k < carriersList.size(); k++){
+                    if(carriersList.get(k).getId() == carrier){
+                        flightInfo.s
+                    }
+                
+                }
+             
+             }
+         
+         }
+             
          }
          
     }
