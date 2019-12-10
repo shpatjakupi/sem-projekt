@@ -63,22 +63,28 @@ public class SkyScannerResource{
     
      @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("flightdata/{inboundDate}/{cabinClass}/{originPlace}/{destinationPlace}/{outboundDate}/{adults}")
+    @Path("flightdata/{outboundDate}/{cabinClass}/{originPlace}/{destinationPlace}/{adults}/{inboundDate}/{children}/{infants}")
     public List<FlightInfoDTO> getFlightInfo(
-            @PathParam("inboundDate") String inboundDate, 
+            @PathParam("outboundDate") String outboundDate, 
             @PathParam("cabinClass") String cabinClass, 
             @PathParam("originPlace") String originPlace, 
-            @PathParam("destinationPlace") String destinationPlace, 
-            @PathParam("outboundDate") String outboundDate,
-            @PathParam("adults") int adults) 
+            @PathParam("destinationPlace") String destinationPlace,
+            @PathParam("adults") int adults,
+            @PathParam("inboundDate") String inboundDate, 
+            @PathParam("children") int children,
+            @PathParam("infants") int infants)
             throws UnirestException {
         System.out.println(outboundDate);
         System.out.println(cabinClass);
         System.out.println(originPlace);
         System.out.println(destinationPlace);
         System.out.println(adults);
+        System.out.println(inboundDate);
+        System.out.println(children);
+        System.out.println(infants);
+        
 
-        return skyFacade.getFlightSearch(inboundDate, cabinClass, originPlace, destinationPlace, outboundDate, adults);
+        return skyFacade.getFlightSearch(outboundDate, cabinClass, originPlace, destinationPlace, adults, inboundDate, children, infants);
             
     }
     

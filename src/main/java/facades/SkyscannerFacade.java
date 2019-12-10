@@ -93,22 +93,33 @@ public class SkyscannerFacade {
             return result;
     }
     
-    public String createSession(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{ // for a live flight search
+    public String createSession(
+            String outboundDate, 
+            String cabinClass,
+            String originPlace, 
+            String destinationPlace, 
+            int adults,
+            String inboundDate,
+            int children,
+            int infants
+           )throws UnirestException{ // for a live flight search
         HttpResponse<JsonNode> response = Unirest.post("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0")
                 .header("X-RapidAPI-Host", host)
                 .header("X-RapidAPI-Key", key)
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .field("inboundDate", inboundDate) // "2019-09-10"
+                //Required parameters for session 
+                .field("outboundDate", outboundDate) // "2019-09-01"
                 .field("cabinClass", cabinClass) //  "business"
-                .field("children", 0)
-                .field("infants", 0)
-                .field("country", "US")
-                .field("currency", "USD")
-                .field("locale", "en-US")
+                .field("country", "US") // "US"
+                .field("currency", "USD") // "USD"
+                .field("locale", "en-US") // "en-US"
                 .field("originPlace", originPlace) // "SFO-sky"
                 .field("destinationPlace", destinationPlace) //"LHR-sky"
-                .field("outboundDate", outboundDate) // "2019-09-01"
-                .field("adults", adults) // 1
+                .field("adults", adults) // 2
+                //Optional parameters for session
+                .field("inboundDate", inboundDate) // "2019-09-10"
+                .field("children", children) // 2
+                .field("infants", infants) // 1 
                 .asJson();
     
     String sessionKey = "";
@@ -132,8 +143,17 @@ public class SkyscannerFacade {
      
 }
     
-    public List <FlightInfoDTO> getFlightSearch(String inboundDate, String cabinClass, String originPlace, String destinationPlace, String outboundDate, int adults) throws UnirestException{
-         String sessionKey = createSession(inboundDate, cabinClass, originPlace, destinationPlace, outboundDate, adults);
+    public List <FlightInfoDTO> getFlightSearch(
+            String outboundDate, 
+            String cabinClass,
+            String originPlace, 
+            String destinationPlace, 
+            int adults,
+            String inboundDate,
+            int children,
+            int infants
+           )throws UnirestException{
+           String sessionKey = createSession(outboundDate, cabinClass, originPlace, destinationPlace, adults, inboundDate, children, infants);
          HttpResponse<JsonNode> response = Unirest.get(
                 "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/"
                 + sessionKey + "?pageIndex=0&pageSize=10")
@@ -255,7 +275,7 @@ public class SkyscannerFacade {
     
         public static void main(String[] args) throws InterruptedException, ExecutionException, UnirestException {
         SkyscannerFacade skyFacade = new SkyscannerFacade();
-        System.out.println(skyFacade.getFlightSearch("2019-12-20", "business", "SFO-sky", "LHR-sky", "2019-12-03", 3));
+        // System.out.println(skyFacade.getFlightSearch("2019-12-20", "business", "SFO-sky", "LHR-sky", "2019-12-03", 3)); 
         
     
     
