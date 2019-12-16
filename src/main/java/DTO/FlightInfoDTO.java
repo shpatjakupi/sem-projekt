@@ -22,7 +22,7 @@ public class FlightInfoDTO {
     private String carrierName;
     private String imageUrl;
     
-    //private String carrierName; 
+   
 
     public FlightInfoDTO(String id, String origin, String destination, String departure, String arrival, int flightDuration, double price, String deepLinkUrl, String agentsName, String imageUrl) {
         this.id = id;
